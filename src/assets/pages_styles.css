@@ -1,0 +1,50 @@
+:scope{
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #0d47a1;
+    margin: 0;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+    width: 400px;
+  }
+  
+  .el-table {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .el-card {
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 40px;
+  }
+  /*用于设置div的间隔，块间呈上下排布*/
+  .container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+  }
+
+  .student-stats {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .student-stats .el-statistic {
+    text-align: center;
+  }
+}
