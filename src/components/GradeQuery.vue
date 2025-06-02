@@ -45,6 +45,7 @@ import "../assets/pages_styles.css";
 import { ref, computed, onBeforeUnmount, onMounted } from 'vue';
 import * as echarts from 'echarts';
 import axios from 'axios';
+import { getCurrentUserId } from "../function/CurrentUser.ts";
 
 // 定义GradeQueryDTO相关接口
 interface GradeTaskDTO {
@@ -76,7 +77,11 @@ interface GradeDTO {
 const gradeList = ref<GradeQueryDTO[]>([]);
 const searchKeyword = ref('');
 const chartInstances = new Map();
-const studentId = ref<number>(0); // 当前登录学生的ID
+//const token = localStorage.getItem('token');
+
+
+
+
 
 // 计算所有任务类型
 const taskTypes = computed(() => {
@@ -95,13 +100,13 @@ const filteredGrades = computed(() => {
       grade.courseId.toString().toLowerCase().includes(keyword) ||
       grade.courseName.toLowerCase().includes(keyword));
 });
-
+const studentId = ref<number|null>(0);
 // 页面加载时获取成绩数据
 onMounted(async () => {
   try {
     /*// 获取当前登录用户ID (实际项目中应该从session获取)
     const userResponse = await axios.get('/api/user/current');*/
-    studentId.value = 1;
+    studentId.value = await getCurrentUserId();
     console.log('Current studentId.value before API call:', studentId.value);
     console.log('Type of studentId.value:', typeof studentId.value);
 

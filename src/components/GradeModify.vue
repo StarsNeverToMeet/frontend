@@ -96,6 +96,7 @@ import "../assets/pages_styles.css";
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
+//import { getCurrentUserType } from "../function/CurrentUser.ts";
 
 // 定义GradeModifyDTO相关接口
 interface GradeStatusDTO {
@@ -156,6 +157,10 @@ const showAdminSection = ref(true); // 根据实际用户角色切换
 const showTeacherSection = ref(true); // 根据实际用户角色切换
 const teacherId = ref<number>(11); // 当前登录教师的ID
 
+const userType = ref<string|null>(null);
+
+
+
 const applyForm = ref({
   gradeId: '',
   studentName: '',
@@ -180,6 +185,17 @@ const pendingApplications = computed(() => {
 // 页面加载时获取数据
 onMounted(async () => {
   try {
+    //userType.value = await getCurrentUserType();
+    console.log(userType.value);
+    if (userType.value === 'ROLE_ADMIN'){
+      showAdminSection.value = true;
+    }
+    else if (userType.value === 'ROLE_TEACHER'){
+      showTeacherSection.value = true;
+    }
+
+
+
     // 获取当前登录用户ID (实际项目中应该从session获取)
     // const userResponse = await axios.get('/api/user/current');
     teacherId.value = 11;
