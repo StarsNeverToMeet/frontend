@@ -3,10 +3,10 @@
     <el-aside class="sidebar">
       <h2>信息管理子系统</h2>
       <el-menu
-        active-text-color="#fff"
-        background-color="transparent"
-        text-color="#fff"
-        :default-active="$route.path"
+          active-text-color="#fff"
+          background-color="transparent"
+          text-color="#fff"
+          :default-active="$route.path"
       >
         <el-menu-item index="1">
           <router-link to="/information-manage">用户信息管理</router-link>
@@ -33,7 +33,7 @@
       <el-header class="top-bar">
         <el-dropdown trigger="click" @visible-change="handleDropdown">
           <div class="user-area">
-            <el-avatar :size="36" src="https://i.pravatar.cc/40" />
+            <el-avatar :size="36" :src="form.picture || 'https://i.pravatar.cc/40'" />
             <span class="username">{{ username }}</span>
             <el-icon :class="['arrow', { 'rotate-180': dropdownVisible }]">
               <arrow-down />
@@ -41,7 +41,7 @@
           </div>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item   @click="openEditDialog(form)">编辑个人信息</el-dropdown-item>
+              <el-dropdown-item @click="openEditDialog(form)">编辑个人信息</el-dropdown-item>
               <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -58,33 +58,30 @@
   <el-dialog title="编辑个人信息" v-model="dialogVisible" width="30%">
     <el-form :model="form" label-width="80px">
       <el-form-item label="用户ID" required>
-          <el-input v-model="form.id" disabled />
-        </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="form.name" />
-        </el-form-item>
-        <el-form-item label="类型">
-          <el-select v-model="form.type">
-            <el-option label="学生" value="student" />
-            <el-option label="教师" value="teacher" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="权限" required>
-          <el-select v-model="form.role">
-            <el-option label="管理员" value="admin" />
-            <el-option label="教师" value="teacher" />
-            <el-option label="学生" value="student" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="头像">
-          <el-upload 
-          action="#" 
-          list-type="picture-card" 
-          :auto-upload="false" 
-          :limit=1
-          > 
-          </el-upload>
-        </el-form-item>
+        <el-input v-model="form.userId" disabled />
+      </el-form-item>
+      <el-form-item label="姓名" required>
+        <el-input v-model="form.name" disabled/>
+      </el-form-item>
+      <el-form-item label="类型">
+        <el-select v-model="form.type" disabled>
+          <el-option label="学生" value="student" />
+          <el-option label="教师" value="teacher" />
+          <el-option label="管理员" value="administrator" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="电话" required>
+        <el-input v-model="form.phoneNumber"/>
+      </el-form-item>
+      <el-form-item label="头像">
+        <el-upload
+            action="#"
+            list-type="picture-card"
+            :auto-upload="false"
+            :limit=1
+        >
+        </el-upload>
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button @click="dialogVisible = false">取消</el-button>
@@ -95,59 +92,108 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
+import axios from 'axios'
 
-
-
-interface User {
-  id: string
-  name: string
-  type: 'student' | 'teacher'
-  role: string
-  avatar: string // 头像地址
+// 导入用户DTO
+interface UserDTO {
+  userId: number;
+  accountNumber: string;
+  personalInforId: number;
+  type: 'student' | 'teacher' | 'administrator';
+  name: string;
+  phoneNumber: string;
+  picture: string;
 }
 
-const form = ref<User>(
-  //后续改为从后端获取
-  { id: 'S001', name: '张三', type: 'student', role: 'student', avatar: '' },
-)
+// 个人信息DTO
+interface PersonalInfoDTO {
+  personalInforId: number;
+  name: string;
+  phoneNumber: string;
+  picture: string;
+}
 
+const form = ref<UserDTO>({
+  userId: 0,
+  accountNumber: '',
+  personalInforId: 0,
+  type: 'student',
+  name: '',
+  phoneNumber: '',
+  picture: ''
+})
 
-const username = ref('zz')
+const username = ref('')
 const dropdownVisible = ref(false)
 const dialogVisible = ref(false)
+
+// 页面加载时获取当前用户信息
+onMounted(async () => {
+  try {
+    // 实际项目中，应该从session或localStorage获取当前用户ID，
+    // 或者调用专门的getCurrentUser API
+    const response = await axios.get('/api/user/current')
+    const userData = response.data
+    form.value = userData
+    username.value = userData.name
+  } catch (error) {
+    console.error('获取用户信息失败', error)
+    // 使用默认数据以演示目的
+    form.value = {
+      userId: 1,
+      accountNumber: 'S001',
+      personalInforId: 1,
+      type: 'student',
+      name: '张三',
+      phoneNumber: '13800138000',
+      picture: ''
+    }
+    username.value = '张三'
+  }
+})
 
 const handleDropdown = (visible: boolean) => {
   dropdownVisible.value = visible
 }
 
-const openEditDialog = (item: User) => {
+const openEditDialog = (item: UserDTO) => {
   form.value = { ...item }
   dialogVisible.value = true
 }
 
+const saveUser = async () => {
+  try {
+    // 准备个人信息数据
+    const personalInfo: PersonalInfoDTO = {
+      personalInforId: form.value.personalInforId,
+      name: form.value.name,
+      phoneNumber: form.value.phoneNumber,
+      picture: form.value.picture
+    }
 
+    // 发送更新请求
+    await axios.put(`/api/personal-information/${form.value.personalInforId}`, personalInfo)
 
-const saveUser = () => {
-  // 保存用户信息的逻辑
-  dialogVisible.value = false
-  alert('保存成功')
+    dialogVisible.value = false
+    alert('保存成功')
+  } catch (error) {
+    console.error('保存失败', error)
+    alert('保存失败，请重试')
+  }
 }
 
 const logout = () => {
   alert('退出登录')
+  // 实际实现中应清除session并跳转到登录页
+  // localStorage.removeItem('token')
+  // router.push('/login')
 }
-
-
-
-
-
-
-
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .layout {
   height: 100vh;
   width: 100vw;

@@ -1,138 +1,261 @@
 <template>
-    <div>
-        <div class="header">
-            <h1>课程基本信息管理</h1>
-            <div class="actions">
-                <el-button type="primary" @click="openAddDialog">添加课程</el-button>
-                <el-input v-model="searchKeyword" placeholder="输入课程ID或课程名称"></el-input>
-            </div>
-        </div>
-        
-        <el-card>
-            <el-table :data="filteredCourses" border style="width: 100%">
-                <el-table-column prop="courseId" label="课程ID"></el-table-column>
-                <el-table-column prop="courseName" label="课程名称"></el-table-column>
-                <el-table-column prop="courseDescription" label="课程描述"></el-table-column>
-                <el-table-column prop="courseCredits" label="课程学分"></el-table-column>
-                <el-table-column prop="courseCapacity" label="课程容量"></el-table-column>">
-                <el-table-column label="操作">
-                    <template #default="{ row }">
-                        <el-button type="primary" @click="openEditDialog(row)">编辑</el-button>
-                        <el-button type="danger" @click="deleteCourse(row.courseId)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-card>
+  <div>
+    <div class="header">
+      <h1>课程基本信息管理</h1>
+      <div class="actions">
+        <el-button type="primary" @click="openAddDialog">添加课程</el-button>
+        <el-input v-model="searchKeyword" placeholder="输入课程ID或课程名称"></el-input>
+      </div>
     </div>
 
-    <el-dialog v-model="dialogVisible" :title="isEditing ? '编辑课程信息' : '添加课程信息'" width="600px">
-        <el-form :model="form" label-width="80px">
-            <el-form-item label="课程ID" required>
-                <el-input v-model="form.courseId"></el-input>
-            </el-form-item>
-            <el-form-item label="课程名称" required>
-                <el-input v-model="form.courseName"></el-input>
-            </el-form-item>
-            <el-form-item label="课程描述" required>
-                <el-input v-model="form.courseDescription"></el-input>
-            </el-form-item>
-            <el-form-item label="课程学分" required>
-                <el-input v-model="form.courseCredits"></el-input>
-            </el-form-item>
-            <el-form-item label="课程容量" required>
-                <el-input v-model="form.courseCapacity"></el-input>
-            </el-form-item>
-        </el-form>
-        <template #footer>
-            <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="saveCourse">确认</el-button>
-        </template>
-    </el-dialog>
+    <el-card>
+      <el-table :data="filteredCourses" border style="width: 100%">
+        <el-table-column prop="courseId" label="课程ID"></el-table-column>
+        <el-table-column prop="title" label="课程名称"></el-table-column>
+        <el-table-column prop="courseIntroduction" label="课程描述"></el-table-column>
+        <el-table-column prop="credits" label="课程学分"></el-table-column>
+        <el-table-column prop="capacity" label="课程容量"></el-table-column>
+        <el-table-column prop="deptName" label="所属院系"></el-table-column>
+        <el-table-column prop="requiredRoomType" label="教室类型要求"></el-table-column>
+        <el-table-column label="操作">
+          <template #default="{ row }">
+            <el-button size="small" type="primary" @click="openEditDialog(row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="deleteCourse(row.courseId)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+  </div>
+
+  <el-dialog v-model="dialogVisible" :title="isEditing ? '编辑课程信息' : '添加课程信息'" width="600px">
+    <el-form :model="form" label-width="100px">
+      <el-form-item label="课程ID" v-if="isEditing">
+        <el-input v-model="form.courseId" disabled></el-input>
+      </el-form-item>
+      <el-form-item label="课程名称" required>
+        <el-input v-model="form.title"></el-input>
+      </el-form-item>
+      <el-form-item label="所属院系" required>
+        <el-select v-model="form.deptName" style="width: 100%">
+          <el-option
+              v-for="dept in departmentList"
+              :key="dept.deptName"
+              :label="dept.deptName"
+              :value="dept.deptName"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="课程描述" required>
+        <el-input v-model="form.courseIntroduction" type="textarea"></el-input>
+      </el-form-item>
+      <el-form-item label="课程学分" required>
+        <el-input-number v-model="form.credits" :min="0" :max="10"></el-input-number>
+      </el-form-item>
+      <el-form-item label="课程容量" required>
+        <el-input-number v-model="form.capacity" :min="1" :max="300"></el-input-number>
+      </el-form-item>
+      <el-form-item label="教室类型要求" required>
+        <el-select v-model="form.requiredRoomType" style="width: 100%">
+          <el-option label="普通教室" value="普通教室" />
+          <el-option label="多媒体教室" value="多媒体教室" />
+          <el-option label="实验室" value="实验室" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="年级" required>
+        <el-input-number v-model="form.gradeYear" :min="1" :max="4"></el-input-number>
+      </el-form-item>
+      <el-form-item label="学期" required>
+        <el-input-number v-model="form.period" :min="1" :max="2"></el-input-number>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="dialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="saveCourse">确认</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
 import "../assets/pages_styles.css";
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import axios from 'axios'
 
-interface Course {
-    courseId: string
-    courseName: string
-    courseDescription: string
-    courseCredits: number
-    courseCapacity: number
+// 导入相关DTO
+interface CourseDTO {
+  courseId: number;
+  title: string;
+  deptName: string;
+  credits: number;
+  courseIntroduction: string;
+  capacity: number;
+  requiredRoomType: string;
+  gradeYear: number;
+  period: number;
 }
 
-const courseList = ref<Course[]>([
-    { courseId: 'CS101', courseName: '计算机科学导论', courseDescription: '计算机科学的基础课程', courseCredits: 3, courseCapacity: 100 },
-    { courseId: 'CS102', courseName: '数据结构', courseDescription: '学习数据结构的基本概念', courseCredits: 4, courseCapacity: 80 },
-]);
+interface DepartmentDTO {
+  deptName: string;
+  campus: string;
+}
 
+// 状态定义
+const courseList = ref<CourseDTO[]>([]);
+const departmentList = ref<DepartmentDTO[]>([]);
 const searchKeyword = ref('');
 const dialogVisible = ref(false);
 const isEditing = ref(false);
-const form = ref<Course>({ courseId: '', courseName: '', courseDescription: '', courseCredits: 0, courseCapacity: 0 });
+const form = ref<CourseDTO>({
+  courseId: 0,
+  title: '',
+  deptName: '',
+  credits: 0,
+  courseIntroduction: '',
+  capacity: 0,
+  requiredRoomType: '普通教室',
+  gradeYear: 1,
+  period: 1
+});
+
+// 页面加载时获取课程列表和院系列表
+onMounted(async () => {
+  try {
+    // 获取课程列表
+    const courseResponse = await axios.get('/api/courses');
+    // 新增检查：确认 courseResponse.data 是一个数组
+    if (!Array.isArray(courseResponse.data)) {
+      console.warn('课程列表API未返回预期的数组格式，可能获取到了HTML页面或其他错误数据。将使用默认数据。', courseResponse.data);
+      throw new Error('Invalid data format for courses'); // 手动抛出错误以进入catch块
+    }
+    courseList.value = courseResponse.data;
+
+    // 获取院系列表
+    const departmentResponse = await axios.get('/api/departments');
+    // 新增检查：确认 departmentResponse.data 是一个数组
+    if (!Array.isArray(departmentResponse.data)) {
+      console.warn('院系列表API未返回预期的数组格式，可能获取到了HTML页面或其他错误数据。将使用默认数据。', departmentResponse.data);
+      throw new Error('Invalid data format for departments'); // 手动抛出错误以进入catch块
+    }
+    departmentList.value = departmentResponse.data;
+
+    // 如果两个请求都成功并且数据格式正确，但返回的是空数组，这里可以额外处理
+    if (courseList.value.length === 0 && departmentList.value.length === 0) {
+      console.info('API返回了空数据，考虑是否也加载默认演示数据或提示用户。');
+      // 如果希望API返回空数组时也加载演示数据，可以取消下面这行的注释
+      // throw new Error('API returned empty data, using fallback');
+    }
+
+  } catch (error) {
+    console.error('获取数据失败', error);
+    // 使用默认数据以演示目的
+    courseList.value = [
+      {
+        courseId: 1,
+        title: '计算机科学导论',
+        deptName: '计算机科学与技术',
+        credits: 3,
+        courseIntroduction: '计算机科学的基础课程',
+        capacity: 100,
+        requiredRoomType: '普通教室',
+        gradeYear: 1,
+        period: 1
+      },
+      {
+        courseId: 2,
+        title: '数据结构',
+        deptName: '计算机科学与技术',
+        credits: 4,
+        courseIntroduction: '学习数据结构的基本概念',
+        capacity: 80,
+        requiredRoomType: '多媒体教室',
+        gradeYear: 2,
+        period: 1
+      },
+    ];
+
+    departmentList.value = [
+      { deptName: '计算机科学与技术', campus: '中心校区' },
+      { deptName: '数学', campus: '中心校区' }
+    ];
+  }
+});
 
 const filteredCourses = computed(() => {
-    if (!searchKeyword.value) return courseList.value;
-    const keyword = searchKeyword.value.toLowerCase();
-    return courseList.value.filter(course => 
-        course.courseId.toLowerCase().includes(keyword) || 
-        course.courseName.toLowerCase().includes(keyword) ||
-        course.courseDescription.toLowerCase().includes(keyword));
+  if (!searchKeyword.value) return courseList.value;
+  const keyword = searchKeyword.value.toLowerCase();
+  return courseList.value.filter(course =>
+      course.courseId.toString().includes(keyword) ||
+      course.title.toLowerCase().includes(keyword) ||
+      course.courseIntroduction.toLowerCase().includes(keyword));
 });
 
 const openAddDialog = () => {
-    form.value = { courseId: '', courseName: '', courseDescription: '', courseCredits: 0, courseCapacity: 0 };
-    isEditing.value = false;
-    dialogVisible.value = true;
+  isEditing.value = false;
+  form.value = {
+    courseId: 0,
+    title: '',
+    deptName: departmentList.value.length > 0 ? departmentList.value[0].deptName : '',
+    credits: 0,
+    courseIntroduction: '',
+    capacity: 0,
+    requiredRoomType: '普通教室',
+    gradeYear: 1,
+    period: 1
+  };
+  dialogVisible.value = true;
 };
 
-const openEditDialog = (course: Course) => {
-    isEditing.value = true;
-    form.value = { ...course };
-    dialogVisible.value = true;
+const openEditDialog = (course: CourseDTO) => {
+  isEditing.value = true;
+  form.value = { ...course };
+  dialogVisible.value = true;
 }
 
-const saveCourse = () => {
-    if (!form.value.courseId || !form.value.courseName || !form.value.courseDescription || form.value.courseCredits <= 0 || form.value.courseCapacity <= 0) {
-        ElMessage.warning('请填写完整信息');
-        return;
-    }
+const saveCourse = async () => {
+  if (!form.value.title || !form.value.deptName || !form.value.courseIntroduction ||
+      form.value.credits <= 0 || form.value.capacity <= 0 ||
+      !form.value.requiredRoomType || form.value.gradeYear < 1 || form.value.period < 1) {
+    ElMessage.warning('请填写完整信息');
+    return;
+  }
+
+  try {
     if (isEditing.value) {
-        const index = courseList.value.findIndex(course => course.courseId === form.value.courseId);
-        if (index !== -1) {
-            courseList.value[index] = { ...form.value };
-            ElMessage.success('课程信息已更新');
-        } else {
-            ElMessage.error('课程ID不存在');
-        }
+      // 更新课程
+      await axios.put(`/api/courses/${form.value.courseId}`, form.value);
+      const index = courseList.value.findIndex(course => course.courseId === form.value.courseId);
+      if (index !== -1) {
+        courseList.value[index] = { ...form.value };
+      }
+      ElMessage.success('课程信息已更新');
     } else {
-        const exists = courseList.value.some(course => course.courseId === form.value.courseId);
-        if (exists) {
-            ElMessage.error('课程ID已存在');
-            return;
-        }
-        courseList.value.push({ ...form.value });
-        ElMessage.success('添加成功');
+      // 创建课程
+      const response = await axios.post('/api/courses', form.value);
+      const newCourse = response.data;
+      courseList.value.push(newCourse);
+      ElMessage.success('添加成功');
     }
     dialogVisible.value = false;
+  } catch (error) {
+    console.error('保存失败', error);
+    ElMessage.error('操作失败，请重试');
+  }
 }
 
-const deleteCourse = (courseId: string) => {
-    ElMessageBox.confirm(`确定要删除课程 "${courseId}" 吗？`, '提示', {
-        type: 'warning',
-    }).then(() => {
-        const index = courseList.value.findIndex(course => course.courseId === courseId);
-        if (index !== -1) {
-            courseList.value.splice(index, 1);
-            ElMessage.success('删除成功');
-        } else {
-            ElMessage.error('课程ID不存在');
-        }
-    }).catch(() => {
-        ElMessage.info('已取消删除操作');
-    });
+const deleteCourse = (courseId: number) => {
+  ElMessageBox.confirm(`确定要删除课程 ID: "${courseId}" 吗？`, '提示', {
+    type: 'warning',
+  }).then(async () => {
+    try {
+      await axios.delete(`/api/courses/${courseId}`);
+      courseList.value = courseList.value.filter(course => course.courseId !== courseId);
+      ElMessage.success('删除成功');
+    } catch (error) {
+      console.error('删除失败', error);
+      ElMessage.error('删除失败，请重试');
+    }
+  }).catch(() => {
+    ElMessage.info('已取消删除操作');
+  });
 };
 </script>
-

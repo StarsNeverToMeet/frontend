@@ -37,6 +37,13 @@
     margin-bottom: 1em;
   }
 
+  .chart-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+  }
+
   .student-stats {
     display: flex;
     justify-content: space-around;
