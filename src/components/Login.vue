@@ -36,11 +36,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-// 请确保您的 Pinia store 正确设置并从 'src/store/user.ts' 导出为 useUserStore
-// 如果您的 store 文件路径或名称不同，请相应调整导入路径。
-// 通常使用 @ 作为 src/ 的别名，例如 '@/store/user'
-import { useUserStore } from '../store/user'; // 根据实际路径调整
-// import router from '../router'; // 如果需要直接操作 router 实例
+import { userStore } from '../store/user.ts';
 
 const credentials = ref({
   accountNumber: '',
@@ -49,7 +45,7 @@ const credentials = ref({
 const loading = ref(false);
 const loginFormRef = ref<FormInstance>();
 
-const userStore = useUserStore();
+const UserStore = userStore();
 
 const loginRules: FormRules = {
   accountNumber: [{ required: true, message: '请输入账号', trigger: 'blur' }],
@@ -63,7 +59,7 @@ const handleLogin = async () => {
     await loginFormRef.value.validate(); // 等待校验结果
     // 如果校验通过，会继续执行下面的代码
     loading.value = true;
-    const success = await userStore.login(credentials.value);
+    const success = await UserStore.login(credentials.value);
     if (success) {
       ElMessage.success('登录成功！');
       // 登录成功后的页面跳转由 Pinia store中的 login action 处理

@@ -331,7 +331,6 @@ const createUser = async () => {
   }
 };
 
-
 const updateUser = async () => {
   // 1. 更新个人信息
   await axios.put(`/api/personal-information/${form.value.personalInforId}`, {

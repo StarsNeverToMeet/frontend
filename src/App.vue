@@ -92,11 +92,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import {ref, onMounted, watch} from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
-import { useUserStore } from "./store/user.ts";
+import { userStore } from "./store/user.ts";
+import {getCurrentUserId} from "./function/CurrentUser.ts";
 
 // 导入用户DTO
 interface UserDTO {
@@ -131,31 +132,54 @@ const route = useRoute();
 const username = ref('')
 const dropdownVisible = ref(false)
 const dialogVisible = ref(false)
+const userId = ref<number|null>(null);
 
-// 页面加载时获取当前用户信息
-onMounted(async () => {
+
+const fetchUser = async () => {
   try {
-    // 实际项目中，应该从session或localStorage获取当前用户ID，
-    // 或者调用专门的getCurrentUser API
-    const response = await axios.get('/api/user/current')
+    userId.value = await getCurrentUserId();
+    const response = await axios.get(`/api/user/${userId.value}`)
     const userData = response.data
     form.value = userData
     username.value = userData.name
   } catch (error) {
     console.error('获取用户信息失败', error)
-    // 使用默认数据以演示目的
-    form.value = {
-      userId: 1,
-      accountNumber: 'S001',
-      personalInforId: 1,
-      type: 'student',
-      name: '张三',
-      phoneNumber: '13800138000',
-      picture: ''
-    }
-    username.value = '张三'
   }
-})
+};
+// 页面加载时获取当前用户信息
+onMounted(async () => {
+  if(userStore().token){
+    await fetchUser();
+  }
+});
+
+
+watch(() => userStore().token, async(newToken, oldToken) => {
+  if (newToken && !oldToken) {
+    // Token 从无到有（通常意味着用户刚刚成功登录）
+    console.log('Token 变为可用 (用户登录)，尝试获取用户信息。');
+    await fetchUser();
+
+  } else if (!newToken && oldToken) {
+    // Token 从有到无（通常意味着用户刚刚登出或 token 失效）
+    console.log('Token 失效 (用户登出)，清理本地用户信息。');
+    form.value = {
+      userId: 0,
+      accountNumber: '',
+      personalInforId: 0,
+      type: 'student',
+      name: '',
+      phoneNumber: '',
+      picture: ''
+    }; // 重置表单
+    username.value = ''; // 清空用户名
+    // 登出后的重定向通常由 userStore.logout() 方法处理。
+    // 如果没有，并且当前不在登录页，可以在这里添加跳转：
+    // if (route.path !== '/login') {
+    //   router.push('/login');
+    // }
+  }
+});
 
 const handleDropdown = (visible: boolean) => {
   dropdownVisible.value = visible
@@ -189,7 +213,7 @@ const saveUser = async () => {
 
 const logout = () => {
   alert('退出登录');
-  useUserStore().logout();
+  userStore().logout();
 }
 </script>
 
