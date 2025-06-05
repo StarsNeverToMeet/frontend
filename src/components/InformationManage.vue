@@ -176,9 +176,9 @@ const filteredUserList = computed(() => {
 
 const getUserTypeText = (type: string) => {
   const typeMap: Record<string, string> = {
-    'student': '学生',
-    'teacher': '教师',
-    'administrator': '管理员'
+    "ROLE_STUDENT": '学生',
+    'role_teacher': '教师',
+    'role_admin': '管理员'
   };
   return typeMap[type] || type;
 };

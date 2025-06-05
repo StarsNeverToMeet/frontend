@@ -168,9 +168,9 @@ onMounted(async () => {
 // 工具函数：转换任务类型为中文
 const translateTaskType = (type: 'attending' | 'homework' | 'test'): string => {
   const typeMap: Record<string, string> = {
-    'attending': '平时作业',
-    'homework': '平时测验',
-    'test': '考试'
+    'attending': '出勤成绩',
+    'homework': '作业成绩',
+    'test': '测试成绩'
   };
   return typeMap[type] || type;
 };

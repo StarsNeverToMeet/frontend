@@ -69,6 +69,7 @@
         <el-table-column prop="studentId" label="学号" width="120" />
         <el-table-column prop="studentName" label="姓名" width="120" />
         <el-table-column prop="courseName" label="课程" />
+        <el-table-column prop="name" label="类型"/>
         <el-table-column label="成绩变化" width="120">
           <template #default="{ row }">
             {{ row.originalGrade }} → {{ row.newGrade }}
@@ -115,6 +116,7 @@ interface ApplicationDTO {
   studentId: number;
   studentName: string;
   courseName: string;
+  name : string;
   originalGrade: number;
   newGrade: number;
   reason: string;
@@ -129,6 +131,7 @@ interface GradeChangeDTO {
   takesId: number;
   teacherId: number;
   result: boolean | null;
+  name: string;
   newGrade: number;
   applyTime: string;
   checkTime: string | null;
@@ -264,6 +267,7 @@ const fetchApplications = async () => {
       studentId: item.studentId || 0,
       studentName: item.studentName || '',
       courseName: item.courseName || '',
+      name: item.name || '',
       originalGrade: item.originalGrade || 0,
       newGrade: item.newGrade,
       reason: item.reason || '',
@@ -329,7 +333,8 @@ const submitApplication = async () => {
       teacherId: teacherId.value,
       result: null,
       newGrade: applyForm.value.newGrade,
-      reason: applyForm.value.reason
+      reason: applyForm.value.reason,
+      name: applyForm.value.reason
     };
 
     // 发送申请
