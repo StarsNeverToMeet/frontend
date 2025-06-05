@@ -32,62 +32,62 @@
         </el-table-column>
       </el-table>
     </el-card>
+  </div>
 
-    <!-- 申请修改对话框 -->
-    <el-dialog v-model="applyDialogVisible" title="成绩修改申请" width="500px">
-      <el-form :model="applyForm" label-width="80px">
-        <el-form-item label="学生姓名">
-          <el-input v-model="applyForm.studentName" disabled />
-        </el-form-item>
-        <el-form-item label="课程名称">
-          <el-input v-model="applyForm.courseName" disabled />
-        </el-form-item>
-        <el-form-item label="原成绩">
-          <el-input v-model="applyForm.originalGrade" disabled />
-        </el-form-item>
-        <el-form-item label="新成绩" prop="newGrade" required>
-          <el-input-number v-model="applyForm.newGrade" :min="0" :max="100" />
-        </el-form-item>
-        <el-form-item label="修改理由" prop="reason" required>
-          <el-input v-model="applyForm.reason" type="textarea" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="applyDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitApplication">提交申请</el-button>
-      </template>
-    </el-dialog>
+  <!-- 申请修改对话框 -->
+  <el-dialog v-model="applyDialogVisible" title="成绩修改申请" width="500px">
+    <el-form :model="applyForm" label-width="80px">
+      <el-form-item label="学生姓名">
+        <el-input v-model="applyForm.studentName" disabled />
+      </el-form-item>
+      <el-form-item label="课程名称">
+        <el-input v-model="applyForm.courseName" disabled />
+      </el-form-item>
+      <el-form-item label="原成绩">
+        <el-input v-model="applyForm.originalGrade" disabled />
+      </el-form-item>
+      <el-form-item label="新成绩" prop="newGrade" required>
+        <el-input-number v-model="applyForm.newGrade" :min="0" :max="100" />
+      </el-form-item>
+      <el-form-item label="修改理由" prop="reason" required>
+        <el-input v-model="applyForm.reason" type="textarea" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="applyDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="submitApplication">提交申请</el-button>
+    </template>
+  </el-dialog>
 
-    <!-- 管理员审核部分 -->
-    <div v-if="showAdminSection">
-      <div class="header">
-        <h1>待审核申请</h1>
-      </div>
-      <el-card>
-        <el-table :data="pendingApplications" border>
-          <el-table-column prop="studentId" label="学号" width="120" />
-          <el-table-column prop="studentName" label="姓名" width="120" />
-          <el-table-column prop="courseName" label="课程" />
-          <el-table-column label="成绩变化" width="120">
-            <template #default="{ row }">
-              {{ row.originalGrade }} → {{ row.newGrade }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="reason" label="申请理由" />
-          <el-table-column prop="applyTime" label="申请时间" width="180" />
-          <el-table-column label="操作" width="180" fixed="right">
-            <template #default="{ row }">
-              <el-button type="success" size="small" @click="handleAudit(row, true)">
-                通过
-              </el-button>
-              <el-button type="danger" size="small" @click="handleAudit(row, false)">
-                拒绝
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-card>
+  <!-- 管理员审核部分 -->
+  <div v-if="showAdminSection">
+    <div class="header">
+      <h1>待审核申请</h1>
     </div>
+    <el-card>
+      <el-table :data="pendingApplications" border>
+        <el-table-column prop="studentId" label="学号" width="120" />
+        <el-table-column prop="studentName" label="姓名" width="120" />
+        <el-table-column prop="courseName" label="课程" />
+        <el-table-column label="成绩变化" width="120">
+          <template #default="{ row }">
+            {{ row.originalGrade }} → {{ row.newGrade }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="reason" label="申请理由" />
+        <el-table-column prop="applyTime" label="申请时间" width="180" />
+        <el-table-column label="操作" width="180" fixed="right">
+          <template #default="{ row }">
+            <el-button type="success" size="small" @click="handleAudit(row, true)">
+              通过
+            </el-button>
+            <el-button type="danger" size="small" @click="handleAudit(row, false)">
+              拒绝
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
   </div>
 </template>
 
@@ -96,7 +96,7 @@ import "../assets/pages_styles.css";
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
-//import { getCurrentUserType } from "../function/CurrentUser.ts";
+import { getCurrentUserType } from "../function/CurrentUser.ts";
 
 // 定义GradeModifyDTO相关接口
 interface GradeStatusDTO {
@@ -153,8 +153,8 @@ const gradeList = ref<GradeStatusDTO[]>([]);
 const applications = ref<ApplicationDTO[]>([]);
 const searchKeyword = ref('');
 const applyDialogVisible = ref(false);
-const showAdminSection = ref(true); // 根据实际用户角色切换
-const showTeacherSection = ref(true); // 根据实际用户角色切换
+const showAdminSection = ref(false); // 根据实际用户角色切换
+const showTeacherSection = ref(false); // 根据实际用户角色切换
 const teacherId = ref<number>(11); // 当前登录教师的ID
 
 const userType = ref<string|null>(null);
@@ -185,15 +185,16 @@ const pendingApplications = computed(() => {
 // 页面加载时获取数据
 onMounted(async () => {
   try {
-    //userType.value = await getCurrentUserType();
+    userType.value = await getCurrentUserType();
     console.log(userType.value);
-    if (userType.value === 'ROLE_ADMIN'){
+    console.log(userType.value === "ROLE_ADMIN");
+    console.log(userType.value === "ROLE_TEACHER");
+    if (userType.value === "ROLE_ADMIN"){
       showAdminSection.value = true;
     }
-    else if (userType.value === 'ROLE_TEACHER'){
+    if (userType.value === "ROLE_TEACHER"){
       showTeacherSection.value = true;
     }
-
 
 
     // 获取当前登录用户ID (实际项目中应该从session获取)

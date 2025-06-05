@@ -6,7 +6,7 @@
           active-text-color="#fff"
           background-color="transparent"
           text-color="#fff"
-          :default-active="$route.path"
+          :default-active="route.path"
       >
         <el-menu-item index="1">
           <router-link to="/information-manage">用户信息管理</router-link>
@@ -95,6 +95,8 @@
 import { ref, onMounted } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
+import { useUserStore } from "./store/user.ts";
 
 // 导入用户DTO
 interface UserDTO {
@@ -125,6 +127,7 @@ const form = ref<UserDTO>({
   picture: ''
 })
 
+const route = useRoute();
 const username = ref('')
 const dropdownVisible = ref(false)
 const dialogVisible = ref(false)
@@ -185,10 +188,8 @@ const saveUser = async () => {
 }
 
 const logout = () => {
-  alert('退出登录')
-  // 实际实现中应清除session并跳转到登录页
-  // localStorage.removeItem('token')
-  // router.push('/login')
+  alert('退出登录');
+  useUserStore().logout();
 }
 </script>
 
