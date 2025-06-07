@@ -66,14 +66,10 @@ const handleLogin = async () => {
       // 它会跳转到 redirectPath 或者 '/' (然后由路由配置重定向到 /login，这里需要注意)
       // 建议在 userStore.login 中，如果 redirectPath 是 '/' 或 '/login'，则默认跳转到一个已登录的页面，例如 '/information-manage'
     } else {
-      // 如果 store 的 login action 返回更详细的错误信息，可以在此处显示
       ElMessage.error('登录失败，请检查您的账号和密码。');
     }
   } catch (validationError) {
-    // 校验不通过时，validate 方法会 reject 一个 Promise
-    // 通常 Element Plus 会自动显示校验错误信息，这里可以不作处理，或者只记录日志
     console.log('Form validation failed:', validationError);
-    // ElMessage.error('请完整填写登录信息。'); // 表单校验会自动提示
   } finally {
     loading.value = false;
   }
@@ -84,7 +80,6 @@ const handleLogin = async () => {
 
 
 
-/* 确保按钮宽度适应el-form-item */
 .el-form-item .el-button {
   width: 100%;
 }

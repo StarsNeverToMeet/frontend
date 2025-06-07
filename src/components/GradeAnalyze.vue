@@ -2,7 +2,7 @@
   <div v-if="showTeacherSection">
     <div>
       <div class="header">
-        <h1>成绩查询与分析-师</h1>
+        <h1>成绩查询与分析</h1>
         <div class="actions">
           <el-input v-model="searchKeyword" placeholder="搜索课程名称或ID" />
         </div>
@@ -40,8 +40,6 @@
           <el-table-column prop="average" label="平均分" width="100"></el-table-column>
           <el-table-column prop="gpa" label="平均GPA" width="100"></el-table-column>
           <el-table-column prop="totalStudents" label="修读人数" width="100"></el-table-column>
-          <!-- 如果需要在表格中显示 teacherId，可以取消下面这行的注释 -->
-          <!-- <el-table-column prop="teacherId" label="教师ID" width="100"></el-table-column> -->
         </el-table>
       </el-card>
     </div>
@@ -150,7 +148,7 @@ onMounted(async () => {
         courseStats.value = courseStatsResponse.data;
       } else {
         console.warn('当前教师ID未设置，无法加载课程统计数据。');
-        courseStats.value = []; // 或者加载一些默认提示数据
+        courseStats.value = [];
       }
     }
 

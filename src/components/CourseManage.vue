@@ -3,7 +3,7 @@
     <div class="header">
       <h1>课程基本信息管理</h1>
       <div class="actions">
-        <el-button type="primary" @click="openAddDialog">添加课程</el-button>
+        <el-button v-if="isAdmin" type="primary" @click="openAddDialog">添加课程</el-button>
         <el-input v-model="searchKeyword" placeholder="输入课程ID或课程名称"></el-input>
       </div>
     </div>
@@ -17,7 +17,7 @@
         <el-table-column prop="capacity" label="课程容量"></el-table-column>
         <el-table-column prop="deptName" label="所属院系"></el-table-column>
         <el-table-column prop="requiredRoomType" label="教室类型要求"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" v-if="isAdmin">
           <template #default="{ row }">
             <el-button size="small" type="primary" @click="openEditDialog(row)">编辑</el-button>
             <el-button size="small" type="danger" @click="deleteCourse(row.courseId)">删除</el-button>
@@ -80,6 +80,7 @@ import "../assets/pages_styles.css";
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
+import {getCurrentUserType} from "../function/CurrentUser.ts";
 
 // 导入相关DTO
 interface CourseDTO {
@@ -100,6 +101,7 @@ interface DepartmentDTO {
 }
 
 // 状态定义
+const isAdmin = ref(false);
 const courseList = ref<CourseDTO[]>([]);
 const departmentList = ref<DepartmentDTO[]>([]);
 const searchKeyword = ref('');
@@ -120,63 +122,21 @@ const form = ref<CourseDTO>({
 // 页面加载时获取课程列表和院系列表
 onMounted(async () => {
   try {
+    const userType = await getCurrentUserType();
+    if (userType === "ROLE_ADMIN") {
+      isAdmin.value = true;
+    }
     // 获取课程列表
     const courseResponse = await axios.get('/api/courses');
-    // 新增检查：确认 courseResponse.data 是一个数组
-    if (!Array.isArray(courseResponse.data)) {
-      console.warn('课程列表API未返回预期的数组格式，可能获取到了HTML页面或其他错误数据。将使用默认数据。', courseResponse.data);
-      throw new Error('Invalid data format for courses'); // 手动抛出错误以进入catch块
-    }
     courseList.value = courseResponse.data;
-
     // 获取院系列表
     const departmentResponse = await axios.get('/api/departments');
-    // 新增检查：确认 departmentResponse.data 是一个数组
-    if (!Array.isArray(departmentResponse.data)) {
-      console.warn('院系列表API未返回预期的数组格式，可能获取到了HTML页面或其他错误数据。将使用默认数据。', departmentResponse.data);
-      throw new Error('Invalid data format for departments'); // 手动抛出错误以进入catch块
-    }
     departmentList.value = departmentResponse.data;
 
-    // 如果两个请求都成功并且数据格式正确，但返回的是空数组，这里可以额外处理
-    if (courseList.value.length === 0 && departmentList.value.length === 0) {
-      console.info('API返回了空数据，考虑是否也加载默认演示数据或提示用户。');
-      // 如果希望API返回空数组时也加载演示数据，可以取消下面这行的注释
-      // throw new Error('API returned empty data, using fallback');
-    }
 
   } catch (error) {
     console.error('获取数据失败', error);
-    // 使用默认数据以演示目的
-    courseList.value = [
-      {
-        courseId: 1,
-        title: '计算机科学导论',
-        deptName: '计算机科学与技术',
-        credits: 3,
-        courseIntroduction: '计算机科学的基础课程',
-        capacity: 100,
-        requiredRoomType: '普通教室',
-        gradeYear: 1,
-        period: 1
-      },
-      {
-        courseId: 2,
-        title: '数据结构',
-        deptName: '计算机科学与技术',
-        credits: 4,
-        courseIntroduction: '学习数据结构的基本概念',
-        capacity: 80,
-        requiredRoomType: '多媒体教室',
-        gradeYear: 2,
-        period: 1
-      },
-    ];
 
-    departmentList.value = [
-      { deptName: '计算机科学与技术', campus: '中心校区' },
-      { deptName: '数学', campus: '中心校区' }
-    ];
   }
 });
 

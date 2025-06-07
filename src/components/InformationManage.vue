@@ -53,7 +53,7 @@
           <el-option label="管理员" value="administrator" />
         </el-select>
       </el-form-item>
-      <el-form-item label="院系" required v-if="form.type === 'student' || form.type === 'teacher'">
+      <el-form-item label="院系" required v-if="form.type === 'ROLE_STUDENT' || form.type === 'ROLE_TEACHER'">
         <el-select v-model="form.deptName">
           <el-option
               v-for="dept in departmentList"
@@ -63,10 +63,10 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="学分" required v-if="form.type === 'student'">
+      <el-form-item label="学分" required v-if="form.type === 'ROLE_STUDENT'">
         <el-input-number v-model="form.totCred" :min="0" />
       </el-form-item>
-      <el-form-item label="薪资" required v-if="form.type === 'teacher'">
+      <el-form-item label="薪资" required v-if="form.type === 'ROLE_TEACHER'">
         <el-input-number v-model="form.salary" :min="0" />
       </el-form-item>
     </el-form>
@@ -84,31 +84,17 @@ import { ref, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import axios from 'axios';
 
-// 导入相关DTO
+
 interface UserDTO {
   userId: number;
   accountNumber: string;
   personalInforId: number;
-  type: 'student' | 'teacher' | 'administrator';
+  type: 'ROLE_STUDENT' | 'ROLE_TEACHER' | 'ROLE_ADMIN';
   name: string;
   phoneNumber: string;
   picture: string;
 }
-/*
-interface StudentDTO extends UserDTO {
-  deptName: string;
-  totCred: number;
-}
 
-interface TeacherDTO extends UserDTO {
-  deptName: string;
-  salary: number;
-}
-
-interface AdministratorDTO extends UserDTO {
-  // 仅继承UserDTO的属性
-}
-*/
 interface DepartmentDTO {
   deptName: string;
   campus: string;
@@ -122,7 +108,7 @@ interface UserFormDTO extends UserDTO {
   password?: string;
 }
 
-// 状态定义
+
 const userList = ref<UserDTO[]>([]);
 const departmentList = ref<DepartmentDTO[]>([]);
 const searchKeyword = ref('');
@@ -132,7 +118,7 @@ const form = ref<UserFormDTO>({
   userId: 0,
   accountNumber: '',
   personalInforId: 0,
-  type: 'student',
+  type: 'ROLE_STUDENT',
   name: '',
   phoneNumber: '',
   picture: '',
@@ -151,16 +137,6 @@ onMounted(async () => {
     departmentList.value = departmentResponse.data;
   } catch (error) {
     console.error('获取数据失败', error);
-    // 使用默认数据以演示目的
-    userList.value = [
-      { userId: 1, accountNumber: 'S001', personalInforId: 1, type: 'student', name: '张三', phoneNumber: '13800138000', picture: '' },
-      { userId: 2, accountNumber: 'T001', personalInforId: 2, type: 'teacher', name: '李老师', phoneNumber: '13900139000', picture: '' },
-    ];
-
-    departmentList.value = [
-      { deptName: '计算机科学与技术', campus: '中心校区' },
-      { deptName: '数学', campus: '中心校区' }
-    ];
   }
 });
 
@@ -176,9 +152,8 @@ const filteredUserList = computed(() => {
 
 const getUserTypeText = (type: string) => {
   const typeMap: Record<string, string> = {
-    "ROLE_STUDENT": '学生',
-    'role_teacher': '教师',
-    'role_admin': '管理员'
+    "role_student": '学生',
+    "role_teacher": '教师'
   };
   return typeMap[type] || type;
 };
@@ -189,7 +164,7 @@ const openAddDialog = () => {
     userId: 0,
     accountNumber: '',
     personalInforId: 0,
-    type: 'student',
+    type: 'ROLE_STUDENT',
     name: '',
     phoneNumber: '',
     picture: '',
@@ -208,9 +183,9 @@ const openEditDialog = (item: UserDTO) => {
   form.value = { ...item };
 
   // 根据用户类型获取额外信息
-  if (item.type === 'student') {
+  if (item.type === 'ROLE_STUDENT') {
     fetchStudentInfo(item.userId);
-  } else if (item.type === 'teacher') {
+  } else if (item.type === 'ROLE_TEACHER') {
     fetchTeacherInfo(item.userId);
   }
 
@@ -254,17 +229,17 @@ const saveUser = async () => {
   }
 
   // 检查特定类型需要的额外字段
-  if ((form.value.type === 'student' || form.value.type === 'teacher') && !form.value.deptName) {
+  if ((form.value.type === 'ROLE_STUDENT' || form.value.type === 'ROLE_TEACHER') && !form.value.deptName) {
     ElMessage.warning('请选择院系');
     return;
   }
 
-  if (form.value.type === 'student' && form.value.totCred === undefined) {
+  if (form.value.type === 'ROLE_STUDENT' && form.value.totCred === undefined) {
     ElMessage.warning('请填写学分');
     return;
   }
 
-  if (form.value.type === 'teacher' && form.value.salary === undefined) {
+  if (form.value.type === 'ROLE_TEACHER' && form.value.salary === undefined) {
     ElMessage.warning('请填写薪资');
     return;
   }
@@ -288,14 +263,7 @@ const saveUser = async () => {
 };
 
 const createUser = async () => {
-  // 表单验证已在 saveUser 方法中处理
-
-  // 根据您提供的学生创建后端逻辑 (student.setPassword("默认密码");)，
-  // 我们假设教师和管理员的创建接口也会在后端设置默认密码。
-  // 因此，前端表单中的密码字段将不会在这些“单一接口调用”的创建场景中传递。
-  // 如果您的教师/管理员后端接口需要前端提供密码，则需要在下面的 payload 中添加 password 字段。
-
-  if (form.value.type === 'student') {
+  if (form.value.type === 'ROLE_STUDENT') {
     const studentPayload = {
       name: form.value.name,
       phoneNumber: form.value.phoneNumber,
@@ -306,7 +274,7 @@ const createUser = async () => {
       // 后端将设置默认密码和用户类型
     };
     await axios.post('/api/students', studentPayload);
-  } else if (form.value.type === 'teacher') {
+  } else if (form.value.type === 'ROLE_TEACHER') {
     // 假设: POST /api/teachers 现在处理完整的教师创建流程
     const teacherPayload = {
       name: form.value.name,
@@ -318,7 +286,7 @@ const createUser = async () => {
       // 假设后端将设置默认密码和用户类型
     };
     await axios.post('/api/teachers', teacherPayload);
-  } else if (form.value.type === 'administrator') {
+  } else if (form.value.type === 'ROLE_ADMIN') {
     // 假设: POST /api/administrators 现在处理完整的管理员创建流程
     const adminPayload = {
       name: form.value.name,
@@ -341,13 +309,13 @@ const updateUser = async () => {
   });
 
   // 2. 根据类型更新特定用户信息
-  if (form.value.type === 'student') {
+  if (form.value.type === 'ROLE_STUDENT') {
     await axios.put(`/api/students/${form.value.userId}`, {
       userId: form.value.userId,
       deptName: form.value.deptName,
       totCred: form.value.totCred || 0
     });
-  } else if (form.value.type === 'teacher') {
+  } else if (form.value.type === 'ROLE_TEACHER') {
     await axios.put(`/api/teachers/${form.value.userId}`, {
       userId: form.value.userId,
       deptName: form.value.deptName,

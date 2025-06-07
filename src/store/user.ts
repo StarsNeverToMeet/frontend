@@ -55,7 +55,7 @@ export const userStore = defineStore('user', {
                     if (redirectPath && redirectPath !== '/login' && redirectPath !== '/') {
                         router.push(redirectPath);
                     } else {
-                        router.push('/information-manage'); // 默认跳转
+                        router.push('/course-manage'); // 默认跳转
                     }
                     return true;
                 } else {

@@ -33,7 +33,6 @@
       <el-header class="top-bar">
         <el-dropdown trigger="click" @visible-change="handleDropdown">
           <div class="user-area">
-            <el-avatar :size="36" :src="form.picture || 'https://i.pravatar.cc/40'" />
             <span class="username">{{ username }}</span>
             <el-icon :class="['arrow', { 'rotate-180': dropdownVisible }]">
               <arrow-down />
@@ -97,7 +96,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { userStore } from "./store/user.ts";
-import {getCurrentUserId} from "./function/CurrentUser.ts";
+import { getCurrentUserId, getCurrentUserName } from "./function/CurrentUser.ts";
 
 // 导入用户DTO
 interface UserDTO {
@@ -134,6 +133,7 @@ const dropdownVisible = ref(false)
 const dialogVisible = ref(false)
 const userId = ref<number|null>(null);
 
+const name = ref<string|null>(null);
 
 const fetchUser = async () => {
   try {
@@ -148,6 +148,8 @@ const fetchUser = async () => {
 };
 // 页面加载时获取当前用户信息
 onMounted(async () => {
+
+  name.value = await getCurrentUserName();
   if(userStore().token){
     await fetchUser();
   }
@@ -263,9 +265,6 @@ const logout = () => {
   transition: transform 0.2s;
 }
 
-.rotate-180 {
-  transform: rotate(180deg);
-}
 
 .page-container {
   background-color: #f5f5f5;
@@ -279,7 +278,5 @@ const logout = () => {
   /*width: 100%;*/
 }
 
-body .el-table th.gutter{
-  display: table-cell!important;
-}
+
 </style>
