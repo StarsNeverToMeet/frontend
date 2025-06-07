@@ -55,17 +55,13 @@
         <el-input-number v-model="form.capacity" :min="1" :max="300"></el-input-number>
       </el-form-item>
       <el-form-item label="教室类型要求" required>
-        <el-select v-model="form.requiredRoomType" style="width: 100%">
-          <el-option label="普通教室" value="普通教室" />
-          <el-option label="多媒体教室" value="多媒体教室" />
-          <el-option label="实验室" value="实验室" />
-        </el-select>
+        <el-input v-model="form.requiredRoomType"></el-input>
       </el-form-item>
       <el-form-item label="年级" required>
         <el-input-number v-model="form.gradeYear" :min="1" :max="4"></el-input-number>
       </el-form-item>
-      <el-form-item label="学期" required>
-        <el-input-number v-model="form.period" :min="1" :max="2"></el-input-number>
+      <el-form-item label="学时" required>
+        <el-input-number v-model="form.period" :min="2" :max="5"></el-input-number>
       </el-form-item>
     </el-form>
     <template #footer>

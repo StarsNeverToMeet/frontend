@@ -48,9 +48,9 @@
       </el-form-item>
       <el-form-item label="类型" required>
         <el-select v-model="form.type">
-          <el-option label="学生" value="student" />
-          <el-option label="教师" value="teacher" />
-          <el-option label="管理员" value="administrator" />
+          <el-option label="学生" value="ROLE_STUDENT" />
+          <el-option label="教师" value="ROLE_TEACHER" />
+          <el-option label="管理员" value="ROLE_ADMIN" />
         </el-select>
       </el-form-item>
       <el-form-item label="院系" required v-if="form.type === 'ROLE_STUDENT' || form.type === 'ROLE_TEACHER'">
@@ -152,8 +152,8 @@ const filteredUserList = computed(() => {
 
 const getUserTypeText = (type: string) => {
   const typeMap: Record<string, string> = {
-    "role_student": '学生',
-    "role_teacher": '教师'
+    "ROLE_STUDENT": '学生',
+    "ROLE_TEACHER": '教师'
   };
   return typeMap[type] || type;
 };

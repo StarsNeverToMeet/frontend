@@ -5,17 +5,20 @@ import CourseManage from "../components/CourseManage.vue";
 import GradeQuery from "../components/GradeQuery.vue";
 import GradeModify from "../components/GradeModify.vue";
 import GradeAnalyze from "../components/GradeAnalyze.vue";
+import ShowSection from "../components/ShowSection.vue";
 import { getCurrentUserId, getCurrentUserType } from "../function/CurrentUser";
 
 const routes = [
     { path: '/', redirect: '/login' },
-    { path: "/login", component: Login, meta: { } },
-    { path: "/information-manage", component: InformationManage, meta: { allowedRoles: ['admin'] } },
-    { path: "/course-manage", component: CourseManage, meta: { allowedRoles: ['admin', 'teacher', 'student'] } },
-    { path: "/grade-query", component: GradeQuery, meta: { allowedRoles: ['student'] } },
-    { path: "/grade-modify", component: GradeModify, meta: { allowedRoles: ['admin', 'teacher']} },
-    { path: "/grade-analyze", component: GradeAnalyze, meta: { allowedRoles: ['teacher', 'student']} }
+    { path: "/login", name: "Login", component: Login, meta: { } }, // 建议也给登录页命名
+    { path: "/information-manage", name: "InformationManage", component: InformationManage, meta: { allowedRoles: ['admin'] } },
+    { path: "/course-manage", name: "CourseManage", component: CourseManage, meta: { allowedRoles: ['admin', 'teacher', 'student'] } },
+    { path: "/grade-query", name: "GradeQuery", component: GradeQuery, meta: { allowedRoles: ['student'] } },
+    { path: "/grade-modify", name: "GradeModify", component: GradeModify, meta: { allowedRoles: ['admin', 'teacher']} },
+    { path: "/grade-analyze", name: "GradeAnalyze", component: GradeAnalyze, meta: { allowedRoles: ['teacher', 'student']} },
+    { path: "/show-section", name: "ShowSection", component: ShowSection, meta: { allowedRoles: ['teacher']}}
 ];
+
 
 const router = createRouter({
     history: createWebHistory(),
